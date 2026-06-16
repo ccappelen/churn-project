@@ -2,7 +2,7 @@
 -- No duplicates
 -- N/A values should be NULL
 -- "USD " prefic in current_balance should be stripped
--- Space-separated thousands 
+-- Space-separated and comma-separated thousands 
 -- open_date mixed formats
 -- Defensive transformations (TRIM, UPPER, INITCAP)
 
