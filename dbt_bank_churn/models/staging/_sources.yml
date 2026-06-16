@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: raw
+    database: churn-project-banking
+    schema: raw
+    tables:
+      - name: customers_raw
+      - name: accounts_raw
+      - name: monthly_activity_raw
+      - name: transactions_sample
+      - name: complaints_log
+      - name: branch_dim
+      - name: churn_labels

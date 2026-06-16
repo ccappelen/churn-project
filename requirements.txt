@@ -1,0 +1,6 @@
+dbt-core==1.8.*
+dbt-bigquery==1.8.*
+pandas
+google-cloud-bigquery
+pyarrow
+db-dtypes

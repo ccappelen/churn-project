@@ -1,0 +1,21 @@
+branch_id,branch_name,city,region
+BR001,Branch 1,Boston,Northeast
+BR002,Branch 2,San Francisco,West
+BR003,Branch 3,Charlotte,South
+BR004,Branch 4,Dallas,South
+BR005,Branch 5,Atlanta,South
+BR006,Branch 6,Seattle,West
+BR007,Branch 7,Boston,Northeast
+BR008,Branch 8,Los Angeles,West
+BR009,Branch 9,Chicago,Midwest
+BR010,Branch 10,Boston,Northeast
+BR011,Branch 11,Houston,South
+BR012,Branch 12,Phoenix,West
+BR013,Branch 13,Los Angeles,West
+BR014,Branch 14,San Francisco,West
+BR015,Branch 15,Los Angeles,West
+BR016,Branch 16,San Francisco,West
+BR017,Branch 17,Houston,South
+BR018,Branch 18,Philadelphia,Northeast
+BR019,Branch 19,Seattle,West
+BR020,Branch 20,Dallas,South
