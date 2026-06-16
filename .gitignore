@@ -216,3 +216,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.Rproj.user
+.positai
+
+# MacOS
+.DS_Store
+**/.DS_Store
+
+# R
+.Rhistory
+.RData
+Rproj.user/
+.Renviron
