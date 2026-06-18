@@ -10,11 +10,11 @@ WITH source AS (
 )
 
 SELECT
-	UPPER(TRIM(customer_id)) as customer_id,
-	UPPER(TRIM(transaction_id)) as transaction_id,
-	UPPER(TRIM(account_id)) as account_id,
-	INITCAP(TRIM(category)) as transaction_category,
-	INITCAP(TRIM(transaction_type)) as transaction_type,
+	UPPER(TRIM(customer_id)) AS customer_id,
+	UPPER(TRIM(transaction_id)) AS transaction_id,
+	UPPER(TRIM(account_id)) AS account_id,
+	INITCAP(TRIM(category)) AS transaction_category,
+	INITCAP(TRIM(transaction_type)) AS transaction_type,
 	amount,
 	transaction_date
 FROM source
