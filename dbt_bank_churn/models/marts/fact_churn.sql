@@ -38,8 +38,8 @@ LEFT JOIN {{ ref('stg_branch') }} bra USING (branch_id)
 )
 
 SELECT 
-	*,
-	DATE_DIFF(cutoff_date, signup_date, MONTH) AS tenure_cutoff,
+	* EXCEPT (tenure_months),
+	DATE_DIFF(cutoff_date, signup_date, MONTH) AS tenure,
 	negative_balance / NULLIF(income_usd, 0) AS gearing
 FROM base_joined
 
