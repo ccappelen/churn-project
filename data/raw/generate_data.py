@@ -262,11 +262,18 @@ for cust_id, acc_id in cust_to_acc.items():
 
     # churn risk score (latent, used to decide churn month)
     risk = 0.0
-    risk += 0.35 if crow["is_active_member"] == 0 else -0.1
-    risk += 0.25 if crow["num_products"] == 1 else (0.0 if crow["num_products"] == 2 else -0.15)
-    risk += 0.15 if crow["tenure_months"] < 12 else -0.05
-    risk += 0.10 if crow["age"] < 30 else 0.0
-    risk += rng.normal(0, 0.15)
+    risk += 0.20 if crow["is_active_member"] == 0 else -0.05
+    risk += 0.15 if crow["num_products"] == 1 else (0.0 if crow["num_products"] == 2 else -0.10)
+    risk += 0.10 if crow["tenure_months"] < 12 else -0.03
+    risk += 0.08 if crow["age"] < 30 else 0.0
+    risk += rng.normal(0, 0.25)
+    
+    # Non-linear interaction: low income + high risk = extra churn probability
+    # XGBoost can capture this interaction; Logistic Regression struggles with it
+    base_income = crow["income_usd"] if not pd.isna(crow["income_usd"]) else 60000
+    if base_income < 40000 and risk > 0.2:
+        risk += 0.10
+        
     risk = np.clip(risk, -0.3, 0.9)
 
     will_churn = rng.random() < (0.08 + 0.45 * max(risk, 0))  # baseline ~8% churn, up to high risk
@@ -277,22 +284,22 @@ for cust_id, acc_id in cust_to_acc.items():
 
     for m_idx, month_end in enumerate(months):
         # Simulate balance trajectory
-        if declining and m_idx >= max(churn_month_idx - 3, 0):
+        if declining and m_idx >= max(churn_month_idx - 2, 0):
             # gradual drawdown before churn
-            balance *= rng.uniform(0.75, 0.92)
+            balance *= rng.uniform(0.88, 0.97)
         else:
             balance *= rng.uniform(0.97, 1.05)
         balance = max(balance, 0)
 
         # transactions count - drops before churn
         base_tx = rng.poisson(12)
-        if declining and m_idx >= max(churn_month_idx - 2, 0):
-            base_tx = rng.poisson(4)
+        if declining and m_idx >= max(churn_month_idx - 1, 0):
+            base_tx = rng.poisson(7)
 
         # logins
         base_logins = rng.poisson(8)
-        if declining and m_idx >= max(churn_month_idx - 2, 0):
-            base_logins = rng.poisson(2)
+        if declining and m_idx >= max(churn_month_idx - 1, 0):
+            base_logins = rng.poisson(4)
 
         # customer becomes inactive after churn month
         is_churn_month_or_after = will_churn and (m_idx >= churn_month_idx)
