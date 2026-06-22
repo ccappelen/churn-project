@@ -15,9 +15,12 @@ prediction pipeline — from raw data ingestion to machine learning modeling.
 | Version control | Git / GitHub |
 
 ## Project Structure
+```
 bank-churn-project/
 
 ├── data/raw/               # Simulated raw CSV files (7 tables)
+
+│   ├── generate_data.py    # Synthetic data generation
 
 ├── dbt_bank_churn/         # dbt project
 
@@ -31,12 +34,10 @@ bank-churn-project/
 
 └── scripts/
 
-├── generate_data.py    # Synthetic data generation
+    ├── load_to_bigquery.R  # Raw data ingestion to BigQuery
 
-├── load_to_bigquery.R  # Raw data ingestion to BigQuery
-
-└── churn_modeling.R    # ML modeling pipeline
-
+    └── churn_modeling.R    # ML modeling pipeline
+```
 
 ## Dataset
 
