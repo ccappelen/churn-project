@@ -1,0 +1,115 @@
+version: 2
+
+models: 
+  - name: int_customer_accounts
+    description: "Account-level features aggregated to one row per customer. 
+    Source: stg_accounts. current_balance reflects balance at time of data 
+    extraction — for churned customers this approximates the balance at exit 
+    since no transactions occur post-churn."
+    columns: 
+      - name: customer_id
+        description: "Unique customer identifier."
+        tests: 
+          - unique
+          - not_null
+      - name: has_loan
+        description: "Binary indicator: 1 if customer has at least one loan account."
+        tests: 
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+      - name: number_accounts
+        description: "Total number of accounts held by customer."
+      - name: distinct_accounts
+        description: "Number of distinct account types held by customer."
+      - name: has_credit_card
+        description: "Binary indicator: 1 if customer has at least one credit card account."
+      - name: total_balance
+        description: "Sum of all account balances including negative (debt) accounts."
+      - name: has_debt
+        description: "Binary indicator: 1 if customer has any account with negative balance."
+      - name: negative_balance
+        description: "Total absolute value of debt accounts (Credit Card and Loan). Always positive."
+      - name: positive_balance
+        description: "Total value of asset accounts (Checking and Savings)."
+      - name: debt_to_asset_ratio
+        description: "Ratio of total debt to total positive balance. NULL where positive_balance = 0."
+
+        
+      
+  - name: int_customer_complaints
+    description: "Complaint features aggregated to one row per customer. All 5,000 
+    customers are included — customers with no complaints receive 0 for count features 
+    and NULL for days_since_last_complaint. Complaints after feature_cutoff_date are 
+    excluded to prevent data leakage."
+    columns: 
+      - name: customer_id
+        description: "Unique customer identifier."
+        tests: 
+          - unique
+          - not_null
+      - name: has_complaint
+        description: "Binary indicator: 1 if customer has at least one complaint."
+        tests: 
+          - not_null
+          - accepted_values: 
+              values: [0, 1]
+              quote: false
+      - name: has_fraud_report
+        description: "Binary indicator: 1 if customer has at least one fraud report complaint."
+        tests: 
+          - accepted_values: 
+              values: [0, 1]
+              quote: false
+      - name: total_complaints
+        description: "Total number of complaints before cutoff_date. 0 for customers with no complaints."
+      - name: total_unresolved
+        description: "Number of complaints with status Pending, Escalated, or Closed - No Action."
+      - name: avg_satisfaction
+        description: "Average satisfaction score (1-5) across complaints. Imputed with 
+        median for customers with no complaints or NULL satisfaction scores."
+      - name: days_since_last_complaint
+        description: "Days between most recent complaint and cutoff_date. NULL for customers with no complaints."
+      - name: pct_resolved
+        description: "Proportion of complaints with Resolved status. 0 for customers with no complaints 
+        (use has_complaint flag to distinguish from customers with all unresolved complaints)."
+
+      
+  - name: int_customer_activity
+    description: "Monthly activity features aggregated to one row per customer from 
+    panel data (stg_monthly_activity). All features are calculated relative to 
+    feature_cutoff_date to prevent leakage. NULL values in change/average features 
+    indicate insufficient history before cutoff — this is expected for early churners 
+    and reflects a limitation of the 1-year observation window, not missing data."
+    columns: 
+      - name: customer_id
+        description: "Unique customer identifier."
+        tests: 
+          - unique
+          - not_null
+      - name: transactions_last_1m
+        description: "Number of transactions in the month of cutoff_date."
+      - name: transactions_last_3m
+        description: "Total transactions in the 3 months up to and including cutoff_date."
+      - name: overdraft_last_3m
+        description: "Number of overdraft flags in the 3 months before cutoff_date."
+      - name: logins_last_1m
+        description: "Number of logins in the month of cutoff_date."
+      - name: logins_last_3m
+        description: "Total logins in the 3 months up to and including cutoff_date."
+      - name: pct_change_transactions_3m
+        description: "Relative change in transactions from 3 months before cutoff to cutoff month. NULL where denominator is 0."
+      - name: pct_change_logins_3m
+        description: "Relative change in logins from 3 months before cutoff to cutoff month. NULL where denominator is 0."
+      - name: avg_balance_last_3m
+        description: "Average end-of-month balance over the 3 months before cutoff_date."
+      - name: avg_balance_last_6m
+        description: "Average end-of-month balance over the 6 months before cutoff_date."
+      - name: pct_change_balance_3m
+        description: "Relative change in balance from 3 months before cutoff to cutoff month. NULL where denominator is 0."
+      - name: months_active_6m
+        description: "Number of months with at least one login in the 6 months before cutoff_date."
+      - name: pct_months_active_6m
+        description: "Proportion of months active (at least one login) in the 6 months before cutoff_date. Between 0 and 1."
+      

@@ -1,0 +1,104 @@
+version: 2
+
+models: 
+  - name: stg_branch
+    description: "Cleaned branch dimension. 20 branches across 16 US cities, 
+    each city mapped consistently to one region. No data quality issues found."
+    columns: 
+      - name: branch_id
+        tests: 
+          - unique
+          - not_null
+      - name: city
+        tests: 
+          - not_null
+      - name: region
+        tests: 
+          - not_null
+          - accepted_values: 
+              values: ['Northeast', 'Midwest', 'South', 'West']
+        
+  - name: stg_customers
+    description: "Cleaned customer demographics. Key cleaning steps: 
+    deduplicated on customer_id (60 near-duplicates removed, kept highest tenure), 
+    standardized 14 gender encodings to Male/Female/Other, parsed 5 inconsistent 
+    date formats for signup_date, nulled out implausible age values (outside 18-100)."
+    columns: 
+      - name: customer_id
+        tests: 
+          - not_null
+          - unique
+      - name: gender
+        tests: 
+          - not_null 
+          - accepted_values: 
+              values: ['Male', 'Female', 'Other']
+      - name: country
+        tests:
+          - not_null
+      
+  - name: stg_churn_labels
+    description: "Target variable table. One row per customer with churn indicator 
+    and churn date. churn_date is NULL for non-churned customers. 
+    Sourced separately from customer features to reflect real-world setup where 
+    target labels often live in a different system (e.g. CRM) than feature data."
+    columns:
+      - name: customer_id
+        tests: 
+          - not_null
+          - unique
+      - name: churned
+        tests: 
+          - not_null
+          - accepted_values: 
+              values: [0, 1]
+              quote: false
+      
+  - name: stg_accounts
+    description: "Cleaned account data. One row per account — customers can have 
+    multiple accounts. Key cleaning: current_balance parsed from mixed formats 
+    (numeric, 'USD 1,234.56', space-separated thousands, 'N/A'). 
+    Negative balances represent amounts owed (Credit Card, Loan accounts)."
+    columns:
+      - name: customer_id
+        tests: 
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: account_id
+        tests: 
+          - unique
+          - not_null
+      - name: account_type
+        tests: 
+          - accepted_values: 
+              values: ['Checking', 'Savings', 'Credit Card', 'Loan']
+    
+  - name: stg_complaints
+    description: "Cleaned customer service complaints log. Not all customers have 
+    complaints (~620 of 5,000). Complaint counts are correlated with churn risk 
+    by design — used in int_customer_complaints."
+    columns: 
+      - name: customer_id
+        tests: 
+          - relationships: 
+              to: ref('stg_customers')
+              field: customer_id
+      - name: resolution_status
+        tests: 
+          - accepted_values: 
+              values: ['Resolved', 'Pending', 'Escalated', 'Closed - No Action']
+              
+  - name: stg_monthly_activity
+    description: "Cleaned panel data: one row per account per month over 12 months 
+    (Jan-Dec 2024). 30 exact duplicate rows removed (simulated pipeline re-runs). 
+    ~870 missing account-month combinations (~1.5%) reflect dropped data feeds. 
+    month column cast to DATE as first day of month for date arithmetic downstream."
+    
+  - name: stg_transactions
+    description: "Cleaned individual transactions for a sample of ~1,200 customers 
+    (last 90 days). Not used in fact_churn due to sparse coverage (24% of customers) — 
+    transaction volume signal is captured more completely via stg_monthly_activity. 
+    Available for supplementary analysis."
+      
+      

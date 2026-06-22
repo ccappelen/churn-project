@@ -1,0 +1,129 @@
+version: 2
+
+models: 
+  - name: fact_churn
+    description: "Fact table with one row per customer containing all features for churn 
+  prediction. Grain: one row per customer. 33 customers removed due to impossible signup 
+  dates (signup_date > cutoff_date). Target variable: churned (1 = churned, 0 = retained)."
+    columns: 
+      - name: customer_id
+        description: "Unique customer identifier, cleaned and uppercased from source system"
+        tests: 
+          - unique
+          - not_null
+      - name: churned
+        description: "Binary churn indicator. 1 = customer churned, 0 = retained"
+        tests: 
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+      - name: signup_date
+        description: "Date of customer signup, dates have been parsed and cleaned 
+        from source sytem to ensure consistency in format"
+        tests: 
+          - not_null
+      - name: gender
+        description: "Gender of customer. Male, Female, or Other"
+        tests: 
+          - accepted_values:
+              values: ['Male', 'Female', 'Other']
+      - name: branch_id
+        description: "Branch identifier, foreign key to stg_branch"
+        tests: 
+          - relationships: 
+              to: ref('stg_branch')
+              field: branch_id
+      - name: num_products
+        description: "Number of products/accounts customer has"
+      - name: is_active_member
+        description: "Binary indicator of active member. 1 = active member, 0 = inactive"
+      - name: country
+        description: "Country of customer"
+      - name: marital_status
+        description: "Marital status of customer. Conatains NULL values."
+      - name: age
+        description: "Age of customer. Values outside 18-100 set to NULL."
+      - name: last_name
+        description: "Last name of customer"
+      - name: education_level
+        description: "Education level of customer. Contains NULL"
+      - name: first_name
+        description: "First name of customer"
+      - name: income_usd
+        description: "Annual income of customer in USD. Contains ~8% NULL values from source system."
+      - name: churn_date
+        description: "Date of customer churn. NULL for non-churned customers."
+      - name: cutoff_date
+        description: "Feature cutoff date to prevent data leakage. 
+        For churned customers: DATE_SUB(churn_date, INTERVAL 1 MONTH), i.e. first day of 
+        the month before churn. For non-churned: 2024-12-31."
+      - name: number_accounts
+        description: "Number of accounts customer has."
+      - name: distinct_accounts
+        description: "Number of distinct account types."
+      - name: has_loan
+        description: "Binary indicator if customer has a loan account."
+      - name: has_credit_card
+        description: "Binary indicator if customer has credit card account."
+      - name: total_balance
+        description: "Total account balance (negative and positive accounts)"
+      - name: has_debt
+        description: "Binary indicator is customer has any negative accounts"
+      - name: negative_balance
+        description: "Total value of negative accounts"
+      - name: positive_balance
+        description: "Total value of positive accounts"
+      - name: debt_to_asset_ratio
+        description: "Negative balance relative to positive balance"
+      - name: total_complaints
+        description: "Total number of complaints a customer has made"
+      - name: total_unresolved
+        description: "Total number of complaints currently unresolved (Pending, Escalated, Closed - No Action)"
+      - name: avg_satisfaction
+        description: "Average satisfaction score for complaints. NULL values imputed with median."
+      - name: has_complaint
+        description: "Binary indicator if customer has had any complaints."
+      - name: days_since_last_complaint
+        description: "Number of days since last complaint."
+      - name: has_fraud_report
+        description: "Binary indicator for customers with at least one fraud report"
+      - name: pct_resolved
+        description: "Percent of complaints that have been resolved"
+      - name: transactions_last_1m
+        description: "Total number of transactions in the last month"
+      - name: transactions_last_3m
+        description: "Total number of transactions in the last three months"
+      - name: overdraft_last_3m
+        description: "Number of overdraft flags in last three months"
+      - name: logins_last_1m
+        description: "Total number of logins in last month"
+      - name: logins_last_3m
+        description: "Total number of logins in last three months"
+      - name: pct_change_transactions_3m
+        description: "Relative change in the number of transactions over last three months. NULL where denominator is 0 (e.g. early churners with limited history)."
+      - name: pct_change_logins_3m
+        description: "Relative change in logins over last three months. NULL where denominator is 0 (e.g. early churners with limited history)."
+      - name: avg_balance_last_3m
+        description: "Average balance in the last three months"
+      - name: avg_balance_last_6m
+        description: "Average balance in the last six months"
+      - name: pct_change_balance_3m
+        description: "Relative change in total balance over last three months. NULL where denominator is 0 (e.g. early churners with limited history)."
+      - name: months_active_6m
+        description: "Number of months active in last six months"
+      - name: pct_months_active_6m
+        description: "Share of months active in last six months"
+      - name: city
+        description: "City of branch"
+      - name: branch_name
+        description: "Branch name"
+      - name: region
+        description: "Region of branch"
+      - name: tenure
+        description: "Months since customer signup. Recalculated using cutoff_date."
+      - name: gearing
+        description: "Total negative balance relative to annual income. NULL where income_usd is NULL."
+      
+        
+        
