@@ -2,6 +2,8 @@
 -- Grain: One customer per row
 -- Adding intermediate models and recalculating tenure 
 -- (based on cutoff_date) and calculating gearing
+-- Filter out 33 customers (~0.66%) where signup_date > cutoff_date
+-- producing negative tenure - data quality issue in source system
 
 
 WITH base_with_cutoff AS (
@@ -42,4 +44,4 @@ SELECT
 	DATE_DIFF(cutoff_date, signup_date, MONTH) AS tenure,
 	negative_balance / NULLIF(income_usd, 0) AS gearing
 FROM base_joined
-
+WHERE DATE_DIFF(cutoff_date, signup_date, MONTH) >= 0
