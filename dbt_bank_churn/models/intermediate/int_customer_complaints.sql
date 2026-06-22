@@ -70,7 +70,7 @@ SELECT
 	IF(COUNT(complaint_id) > 0, 1, 0) AS has_complaint,
 	DATE_DIFF(
     	CASE WHEN MAX(churned) = 1 
-        	THEN DATE_SUB(MAX(churn_date), INTERVAL 1 MONTH)
+        	THEN DATE_SUB(MAX(churn_date), INTERVAL 2 MONTH)
         ELSE DATE '2024-12-31'
     	END,
     	MAX(complaint_date),

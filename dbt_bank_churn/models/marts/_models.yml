@@ -56,8 +56,10 @@ models:
         description: "Date of customer churn. NULL for non-churned customers."
       - name: cutoff_date
         description: "Feature cutoff date to prevent data leakage. 
-        For churned customers: DATE_SUB(churn_date, INTERVAL 1 MONTH), i.e. first day of 
-        the month before churn. For non-churned: 2024-12-31."
+        For churned customers: DATE_SUB(churn_date, INTERVAL 2 MONTH) — excludes 
+        the churn month and the month immediately prior, where behavioral changes 
+        are already a consequence of churn rather than a predictor. 
+        For non-churned: 2024-12-31."
       - name: number_accounts
         description: "Number of accounts customer has."
       - name: distinct_accounts

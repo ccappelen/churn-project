@@ -25,7 +25,7 @@ WITH activity_churn_cutoff AS (
 		act.*,
 		churn.churn_date,
 		CASE WHEN churn.churn_date IS NOT NULL 
-			THEN DATE_SUB(churn.churn_date, INTERVAL 1 MONTH)
+			THEN DATE_SUB(churn.churn_date, INTERVAL 2 MONTH)
 		ELSE DATE '2024-12-31'
 		END AS cutoff_date 
 	FROM {{ ref('stg_monthly_activity') }}  act

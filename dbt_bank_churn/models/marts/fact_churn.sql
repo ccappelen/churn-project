@@ -4,6 +4,10 @@
 -- (based on cutoff_date) and calculating gearing
 -- Filter out 33 customers (~0.66%) where signup_date > cutoff_date
 -- producing negative tenure - data quality issue in source system
+-- cutoff_date: For churned customers: DATE_SUB(churn_date, INTERVAL 2 MONTH)
+-- to ensure no activity data from the churn month or the month immediately
+-- before churn is included as a feature (prevents leakage from behavioral
+-- changes in the final month before exit).
 
 
 WITH base_with_cutoff AS (
@@ -13,7 +17,7 @@ WITH base_with_cutoff AS (
 		churn.churned,
 		churn.churn_date,
 		CASE WHEN churn.churned = 1
-			THEN DATE_SUB(churn.churn_date, INTERVAL 1 MONTH)
+			THEN DATE_SUB(churn.churn_date, INTERVAL 2 MONTH)
 			ELSE DATE '2024-12-31'
 		END AS cutoff_date
 	FROM {{ ref('stg_customers') }} customer
