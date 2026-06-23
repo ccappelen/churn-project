@@ -162,7 +162,7 @@ Before modeling, feature distributions were examined by churn status to
 understand which variables show separation between churned and retained 
 customers.
 
-![Feature Distributions](images/feature_distributions.png)
+<!-- ![Feature Distributions](images/feature_distributions.png) -->
 
 Key observations:
 - **Login and transaction activity** show the strongest visual separation — 
