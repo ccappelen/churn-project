@@ -222,7 +222,10 @@ across thresholds from 0.10 to 0.90.
 | Precision | 0.950 | 0.924 |
 | Recall | 0.745 | 0.876 |
 
-![ROC Curves](images/roc_curves.png)
+<!-- ![ROC Curves](images/roc_curves.png) -->
+<p align="center">
+  <img src="images/roc_curves.png" width="70%" />
+</p>
 
 XGBoost outperforms Logistic Regression on recall (0.876 vs 0.745) and 
 F1 (0.899 vs 0.835) — catching significantly more churners at a small 
@@ -236,9 +239,18 @@ with a premium retention offer.
 
 ### Feature Importance
 
-![XGBoost Feature Importance](images/xgb_importance.png)
+<!-- ![XGBoost Feature Importance](images/xgb_importance.png) -->
 
-![Logistic Regression Coefficients](images/logistic_coefficients.png)
+<p align="center">
+  <img src="images/xgb_importance.png" width="70%" />
+  <img src="images/logistic_coefficients.png" width="70%" />
+</p>
+
+<!-- ![Logistic Regression Coefficients](images/logistic_coefficients.png) -->
+
+<!-- <p align="center">
+  <img src="images/logistic_coefficients.png" width="70%" />
+</p> -->
 
 Both models agree on the top predictors: `balance_trend`, `logins_last_1m`, 
 `transactions_last_1m`, and `months_active_6m` — all behavioral engagement 
@@ -248,7 +260,11 @@ research.
 
 ### Lift Analysis
 
-![Cumulative Gains Curve](images/gains_curve.png)
+<!-- ![Cumulative Gains Curve](images/gains_curve.png) -->
+
+<p align="center">
+  <img src="images/gains_curve.png" width="70%" />
+</p>
 
 | Decile | Churn Rate | Lift | Cumulative Churners Captured |
 |---|---|---|---|
