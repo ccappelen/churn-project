@@ -39,6 +39,17 @@ bank-churn-project/
     └── churn_modeling.R    # ML modeling pipeline
 ```
 
+
+## Data Lineage
+
+The dbt pipeline builds 11 models across 3 layers — from raw BigQuery 
+sources through to the final `fact_churn` feature table.
+
+![dbt Lineage Graph](images/lineage_graph.png)
+
+> Full interactive documentation: [dbt docs](https://YOUR_USERNAME.github.io/bank-churn-project/)
+
+
 ## Dataset
 
 A synthetically generated dataset of 5,000 bank customers across 7 
