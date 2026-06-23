@@ -203,7 +203,8 @@ so optimizing for recall at a small precision cost is the right business
 decision. The optimal threshold was selected by maximizing F1 score 
 across thresholds from 0.10 to 0.90.
 
-![Precision Recall and F1 by Threshold](images/threshold_tuning.png)
+<!-- ![Precision Recall and F1 by Threshold](images/threshold_tuning.png) -->
+<img src="images/threshold_tuning.png" width="300" />
 
 ---
 
