@@ -7,7 +7,9 @@ pacman::p_load("bigrquery",
                "tidymodels", 
                "xgboost", 
                "vip", # Variable importance plots
-               "probably" # Threshold tuning
+               "probably", # Threshold tuning
+               "shapviz", # SHAP values
+               "patchwork"
                )
 
 set_theme(cappelenR::my_theme())
@@ -245,7 +247,8 @@ bind_rows(logistic_roc, xgb_roc) |>
        x = "False Positive Rate (1 - Specificity)",
        y = "True Positive Rate (Sensitivity)",
        color = "Model") 
-
+ggsave("../images/roc_curves.png",
+       width = 8, height = 5, dpi = 150)
 
 
 # Confusion matrices ------------------------------------------------------
@@ -270,6 +273,8 @@ xgb_last_fit |>
   extract_fit_parsnip() |>
   vip(num_features = 15) +
   labs(title = "XGBoost Feature Importance")
+ggsave("../images/xgb_importance.png",
+       width = 8, height = 6, dpi = 150)
 
 # Logistic regression coefficients
 logistic_last_fit |>
@@ -287,6 +292,8 @@ logistic_last_fit |>
                                "FALSE" = "Decreases churn risk")) +
   labs(title = "Logistic Regression — Top 15 Coefficients",
        x = "Coefficient", y = NULL, fill = NULL) 
+ggsave("../images/logistic_coefficients.png",
+       width = 8, height = 6, dpi = 150)
 
 
 
@@ -327,13 +334,206 @@ threshold_df <- tibble(threshold = seq(0.1, 0.9, by = 0.01)) |>
 
 # Plot F1, precision, recall across thresholds
 threshold_df |>
+  mutate(.metric = recode(.metric, "f_meas" = "F1")) |> 
   ggplot(aes(x = threshold, y = .estimate, color = .metric)) +
   geom_line(linewidth = 1) +
   scale_color_manual(values = c(
-    "f_meas" = "black",
+    "F1" = "black",
     "precision" = "steelblue",
     "recall" = "tomato"
   )) +
   geom_vline(xintercept = 0.5, linetype = "dashed", color = "gray") +
   labs(title = "Precision, Recall and F1 by Threshold — XGBoost",
        x = "Classification Threshold", y = "Score", color = "Metric")
+
+ggsave("../images/threshold_tuning.png",
+       width = 8, height = 5, dpi = 150)
+
+
+# Find optimal threshold (maximizes F1) -----------------------------------
+
+optimal_threshold <- threshold_df |>
+  filter(.metric == "f_meas") |>
+  slice_max(.estimate, n = 1) |>
+  slice(1) |> 
+  pull(threshold)
+
+cat("Optimal threshold:", optimal_threshold, "\n")
+
+
+# Apply optimal threshold to XGBoost predictions --------------------------
+
+xgb_tuned_preds <- xgb_preds |>
+  mutate(.pred_class_tuned = factor(
+    if_else(.pred_yes >= optimal_threshold, "yes", "no"),
+    levels = c("yes", "no")
+  ))
+
+
+# Compare default versus tuned threshold metrics --------------------------
+
+default_metrics <- xgb_preds |>
+  metric_set(f_meas, precision, recall)(
+    truth = churned,
+    estimate = .pred_class
+  ) |>
+  mutate(threshold = "Default (0.50)")
+
+tuned_metrics <- xgb_tuned_preds |>
+  metric_set(f_meas, precision, recall)(
+    truth = churned,
+    estimate = .pred_class_tuned
+  ) |>
+  mutate(threshold = paste0("Tuned (", optimal_threshold, ")"))
+
+bind_rows(default_metrics, tuned_metrics) |>
+  select(threshold, .metric, .estimate) |>
+  pivot_wider(names_from = threshold, values_from = .estimate)
+
+# ── Confusion matrix with tuned threshold ─────────────────────────────────────
+xgb_tuned_preds |>
+  conf_mat(truth = churned, estimate = .pred_class_tuned) |>
+  autoplot(type = "heatmap") +
+  labs(title = paste0("Confusion Matrix — XGBoost (Threshold = ", optimal_threshold, ")"))
+
+
+
+# Lift and gains analysis -------------------------------------------------
+
+base_rate <- mean(xgb_preds$churned == "yes")
+
+lift_gains <- xgb_preds |>
+  arrange(desc(.pred_yes)) |>
+  mutate(
+    row_n          = row_number(),
+    pct_population = row_n / n(),
+    churner        = if_else(churned == "yes", 1, 0),
+    cum_churners   = cumsum(churner),
+    cum_gains      = cum_churners / sum(churner),
+    cum_lift       = cum_gains / pct_population
+  )
+
+
+# Cumulative gains curve --------------------------------------------------
+
+lift_gains |>
+  ggplot(aes(x = pct_population, y = cum_gains)) +
+  geom_line(color = "tomato", linewidth = 1) +
+  geom_abline(linetype = "dashed", color = "gray") +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Cumulative Gains Curve — XGBoost",
+       x = "% of Customers Contacted (ranked by churn probability)",
+       y = "% of Churners Captured") 
+ggsave("../images/gains_curve.png",
+       width = 8, height = 5, dpi = 150)
+
+
+# Lift curve --------------------------------------------------------------
+
+lift_gains |>
+  ggplot(aes(x = pct_population, y = cum_lift)) +
+  geom_line(color = "steelblue", linewidth = 1) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray") +
+  scale_x_continuous(labels = scales::percent) +
+  labs(title = "Lift Curve — XGBoost",
+       x = "% of Customers Contacted (ranked by churn probability)",
+       y = "Lift vs Random") 
+
+
+# Decile table ------------------------------------------------------------
+
+decile_table <- xgb_preds |>
+  arrange(desc(.pred_yes)) |>
+  mutate(
+    decile = ntile(desc(.pred_yes), 10),
+    churner = if_else(churned == "yes", 1, 0)
+  ) |>
+  group_by(decile) |>
+  summarise(
+    n_customers   = n(),
+    n_churners    = sum(churner),
+    churn_rate    = mean(churner),
+    cumulative_churners = NA_real_,
+    .groups = "drop"
+  ) |>
+  mutate(
+    cumulative_churners  = cumsum(n_churners),
+    pct_churners_captured = cumulative_churners / sum(n_churners),
+    lift = churn_rate / base_rate
+  )
+
+print(decile_table)
+
+
+# SHAP values -------------------------------------------------------------
+
+# Extract the fitted XGBoost model
+xgb_fit <- xgb_last_fit |> extract_fit_parsnip()
+
+xgb_fit_raw <- xgb_last_fit |> 
+  extract_fit_parsnip() |>
+  extract_fit_engine()  # gets the underlying xgboost object
+
+# Extract and prep the training data through the recipe
+# (SHAP needs the preprocessed feature matrix, not raw data)
+xgb_prep <- final_xgb_wf |>
+  extract_preprocessor() |>
+  prep()
+
+train_baked <- xgb_prep |>
+  bake(new_data = churn_train) |>
+  select(-churned)
+
+# Convert to matrix for shapviz
+train_matrix <- as.matrix(train_baked)
+
+# Create shapviz object
+shp <- shapviz(xgb_fit_raw, X_pred = train_matrix, X = train_baked)
+
+
+
+# 1. Beeswarm plot (global feature importance) ----------------------------
+
+sv_importance(shp, kind = "beeswarm", max_display = 15) +
+  labs(title = "SHAP Values — Feature Impact on Churn Prediction",
+       x = "SHAP Value (impact on model output)",
+       caption = "Red = high feature value, Blue = low feature value")
+
+ggsave("../images/shap_beeswarm.png", 
+       width = 10, height = 7, 
+       dpi = 150)
+
+
+# 2. Waterfall plot (single customer explanation) -------------------------
+
+# Find an interesting churner to explain - highest predicted probability
+ranked_idx <- order(xgb_preds$.pred_yes, decreasing = TRUE)
+# top_churner_idx <- ranked_idx[1]   # highest
+top_churner_idx <- ranked_idx[2]   # second highest
+# top_churner_idx <- ranked_idx[3]   # third highest
+
+
+sv_waterfall(shp, row_id = top_churner_idx) +
+  labs(title = "SHAP Waterfall — Top Predicted Churner") +
+  cappelenR::my_theme() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.line.x = element_line())
+
+ggsave("../images/shap_waterfall.png", 
+       width = 10, height = 7,
+       dpi = 150)
+
+
+
+# 3. Dependence plot (balance_trend vs. SHAP value) -----------------------
+
+sv_dependence(shp, v = "balance_trend", color_var = "logins_last_1m") +
+  labs(title = "SHAP Dependence — Balance Trend",
+       x = "Balance Trend (3m avg - 6m avg)",
+       y = "SHAP Value")
+
+ggsave("../images/shap_dependence.png", 
+       width = 8, height = 5,
+       dpi = 150)

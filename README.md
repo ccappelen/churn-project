@@ -266,6 +266,23 @@ features. Demographic features (age, income, tenure) contribute modestly
 but are not primary drivers, which is consistent with real-world churn 
 research.
 
+### Model Explainability (SHAP Values)
+
+SHAP (SHapley Additive exPlanations) values quantify each feature's 
+contribution to individual predictions, providing both global and 
+local model explainability — important in banking contexts where 
+regulators may require justification for model decisions.
+
+<p align="center">
+  <img src="images/shap_beeswarm.png" width="70%" />
+</p>
+
+The beeswarm plot confirms that behavioral features dominate predictions. 
+Declining balance trend and low login/transaction activity push customers 
+strongly toward predicted churn, while high engagement and growing balances 
+push toward retention.
+
+
 ### Lift Analysis
 
 <!-- ![Cumulative Gains Curve](images/gains_curve.png) -->
