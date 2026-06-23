@@ -5,6 +5,8 @@ prediction pipeline — from raw data ingestion to machine learning modeling.
 
 ## Tech Stack
 
+<div align="center">
+
 | Layer | Tools |
 |---|---|
 | Data simulation | Python (numpy, pandas) |
@@ -13,6 +15,8 @@ prediction pipeline — from raw data ingestion to machine learning modeling.
 | Data modeling | dbt (staging → intermediate → marts) |
 | Machine learning | R (tidymodels, XGBoost, glmnet) |
 | Version control | Git / GitHub |
+
+</div>
 
 ## Project Structure
 ```
@@ -214,6 +218,8 @@ across thresholds from 0.10 to 0.90.
 
 ### Model Comparison
 
+<div align="center">
+
 | Metric | Logistic Regression | XGBoost (threshold = 0.32) |
 |---|---|---|
 | ROC-AUC | 0.979 | 0.984 |
@@ -221,6 +227,8 @@ across thresholds from 0.10 to 0.90.
 | F1 | 0.835 | 0.899 |
 | Precision | 0.950 | 0.924 |
 | Recall | 0.745 | 0.876 |
+
+</div>
 
 <!-- ![ROC Curves](images/roc_curves.png) -->
 <p align="center">
@@ -266,12 +274,16 @@ research.
   <img src="images/gains_curve.png" width="70%" />
 </p>
 
+<div align="center">
+
 | Decile | Churn Rate | Lift | Cumulative Churners Captured |
 |---|---|---|---|
 | 1 (top 10%) | 97% | 6.3x | 63% |
 | 2 | 49% | 3.1x | 95% |
 | 3 | 6% | 0.4x | 99% |
 | 4-10 | ~0% | ~0x | 100% |
+
+</div>
 
 By targeting only the **top 20% of customers** ranked by predicted churn 
 probability, the model captures **95% of all churners** — a 4-6x 
