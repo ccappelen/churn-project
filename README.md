@@ -47,7 +47,7 @@ sources through to the final `fact_churn` feature table.
 
 ![dbt Lineage Graph](images/lineage_graph.png)
 
-> Full interactive documentation: [dbt docs](https://YOUR_USERNAME.github.io/bank-churn-project/)
+> Full interactive documentation: [dbt docs](https://ccappelen.github.io/churn-project/)
 
 
 ## Dataset
