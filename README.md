@@ -242,8 +242,8 @@ with a premium retention offer.
 <!-- ![XGBoost Feature Importance](images/xgb_importance.png) -->
 
 <p align="center">
-  <img src="images/xgb_importance.png" width="70%" />
-  <img src="images/logistic_coefficients.png" width="70%" />
+  <img src="images/xgb_importance.png" width="45%" />
+  <img src="images/logistic_coefficients.png" width="45%" />
 </p>
 
 <!-- ![Logistic Regression Coefficients](images/logistic_coefficients.png) -->
