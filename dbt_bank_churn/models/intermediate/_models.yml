@@ -17,8 +17,9 @@ models:
         tests: 
           - not_null
           - accepted_values:
-              values: [0, 1]
-              quote: false
+              arguments: 
+                values: [0, 1]
+                quote: false
       - name: number_accounts
         description: "Total number of accounts held by customer."
       - name: distinct_accounts
@@ -54,14 +55,16 @@ models:
         tests: 
           - not_null
           - accepted_values: 
-              values: [0, 1]
-              quote: false
+              arguments: 
+                values: [0, 1]
+                quote: false
       - name: has_fraud_report
         description: "Binary indicator: 1 if customer has at least one fraud report complaint."
         tests: 
           - accepted_values: 
-              values: [0, 1]
-              quote: false
+              arguments: 
+                values: [0, 1]
+                quote: false
       - name: total_complaints
         description: "Total number of complaints before cutoff_date. 0 for customers with no complaints."
       - name: total_unresolved

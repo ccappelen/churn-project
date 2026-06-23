@@ -16,8 +16,9 @@ models:
         tests: 
           - not_null
           - accepted_values:
-              values: [0, 1]
-              quote: false
+              arguments: 
+                values: [0, 1]
+                quote: false
       - name: signup_date
         description: "Date of customer signup, dates have been parsed and cleaned 
         from source sytem to ensure consistency in format"
@@ -27,13 +28,15 @@ models:
         description: "Gender of customer. Male, Female, or Other"
         tests: 
           - accepted_values:
-              values: ['Male', 'Female', 'Other']
+              arguments: 
+                values: ['Male', 'Female', 'Other']
       - name: branch_id
         description: "Branch identifier, foreign key to stg_branch"
         tests: 
           - relationships: 
-              to: ref('stg_branch')
-              field: branch_id
+              arguments: 
+                to: ref('stg_branch')
+                field: branch_id
       - name: num_products
         description: "Number of products/accounts customer has"
       - name: is_active_member

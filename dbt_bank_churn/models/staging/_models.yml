@@ -16,7 +16,8 @@ models:
         tests: 
           - not_null
           - accepted_values: 
-              values: ['Northeast', 'Midwest', 'South', 'West']
+              argument: 
+                values: ['Northeast', 'Midwest', 'South', 'West']
         
   - name: stg_customers
     description: "Cleaned customer demographics. Key cleaning steps: 
@@ -32,7 +33,8 @@ models:
         tests: 
           - not_null 
           - accepted_values: 
-              values: ['Male', 'Female', 'Other']
+              arguments: 
+                values: ['Male', 'Female', 'Other']
       - name: country
         tests:
           - not_null
@@ -51,8 +53,9 @@ models:
         tests: 
           - not_null
           - accepted_values: 
-              values: [0, 1]
-              quote: false
+              arguments: 
+                values: [0, 1]
+                quote: false
       
   - name: stg_accounts
     description: "Cleaned account data. One row per account — customers can have 
@@ -63,8 +66,9 @@ models:
       - name: customer_id
         tests: 
           - relationships:
-              to: ref('stg_customers')
-              field: customer_id
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
       - name: account_id
         tests: 
           - unique
@@ -72,7 +76,8 @@ models:
       - name: account_type
         tests: 
           - accepted_values: 
-              values: ['Checking', 'Savings', 'Credit Card', 'Loan']
+              arguments: 
+                values: ['Checking', 'Savings', 'Credit Card', 'Loan']
     
   - name: stg_complaints
     description: "Cleaned customer service complaints log. Not all customers have 
@@ -82,12 +87,14 @@ models:
       - name: customer_id
         tests: 
           - relationships: 
-              to: ref('stg_customers')
-              field: customer_id
+              arguments: 
+                to: ref('stg_customers')
+                field: customer_id
       - name: resolution_status
         tests: 
           - accepted_values: 
-              values: ['Resolved', 'Pending', 'Escalated', 'Closed - No Action']
+              arguments: 
+                values: ['Resolved', 'Pending', 'Escalated', 'Closed - No Action']
               
   - name: stg_monthly_activity
     description: "Cleaned panel data: one row per account per month over 12 months 
