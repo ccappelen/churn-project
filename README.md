@@ -204,7 +204,7 @@ decision. The optimal threshold was selected by maximizing F1 score
 across thresholds from 0.10 to 0.90.
 
 <!-- ![Precision Recall and F1 by Threshold](images/threshold_tuning.png) -->
-<p align="center"
+<p align="center">
   <img src="images/threshold_tuning.png" width="600" />
 </p>
 
