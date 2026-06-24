@@ -16,7 +16,7 @@ models:
         tests: 
           - not_null
           - accepted_values: 
-              argument: 
+              arguments: 
                 values: ['Northeast', 'Midwest', 'South', 'West']
         
   - name: stg_customers
